@@ -20,7 +20,7 @@ def observe_user(output_dir):
     while not done:
         if subprocess.call(
             base + ['/tmp/{}/{:07}.png'.format(output_dir, cur)]) != 0:
-            return 0
+            return -1
         cur += 1
         try:
             time.sleep(period)
@@ -40,7 +40,8 @@ def main(outfile):
                                  for x in range(20))
     if subprocess.call(['mkdir', '/tmp/{}'.format(output_dir)]) != 0:
         return -1
-    observe_user(output_dir)
+    if observe_user(output_dir) != 0:
+        return -1
     if movie_from_images(output_dir, outfile) != 0:
         return -1
     subprocess.call(['rm', '-r', '/tmp/{}'.format(output_dir)])

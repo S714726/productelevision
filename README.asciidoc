@@ -1,0 +1,21 @@
+productelevision
+----------------
+
+productelevision periodically takes screenshots until it is sent a
+keyboard interrupt signal, at which point it merges the screenshots
+together into a video. The video is used to monitor the productivity of
+the individual and determine if they are suitable for use in the
+workplace or at home. It can then be used at a later date for the
+purposes of entertainment.
+
+I use +scrot+ for screenshots and +avconv+ (formerly +ffmpeg+) to
+combine them into movies; at this point in time, you have to, too. And I
+delete the image files after the movie is complete, so you don't get to
+keep them either. But at 50 lines, anyone has the power to change the
+script to fulfill their wildest dreams.
+
+License
+-------
+Copyright (C) 2012 S714726
+
+Distributed under the GNU General Public License version 3.
