@@ -5,21 +5,26 @@
 #
 # P.S. It takes a lot of granola to turn a 22 line shell script into a
 #   50+ line Python program
-#
-# TODO: Add ways to change the screenshot utility and movie converter
 
 import subprocess, random, string, time
+
+utils = {
+    # Assumes utility that uses scrot syntax
+    'screenshot': ['/usr/bin/scrot', '-q', '100', '-m', '-z'],
+
+    # Assumes utility that uses ffmpeg/avconv movie compilation syntax
+    'movie': ['avconv', '-f', 'image2', '-qscale', '2', '-same_quant']
+}
 
 def observe_user(output_dir):
     period = 16 #seconds
 
-    # First change point (screenshot util)
-    base = ['/usr/bin/scrot', '-q', '100', '-m', '-z']
     cur = 0
     done = False
     while not done:
         if subprocess.call(
-            base + ['/tmp/{}/{:07}.png'.format(output_dir, cur)]) != 0:
+            utils['screenshot'] +
+                ['/tmp/{}/{:07}.png'.format(output_dir, cur)]) != 0:
             return -1
         cur += 1
         try:
@@ -29,10 +34,8 @@ def observe_user(output_dir):
     return 0
 
 def movie_from_images(input_dir, output_file):
-    # Second change point (movie conversion), soundtrack optional
-    return subprocess.call(['avconv', '-f', 'image2', '-qscale', '2',
-                            '-same_quant',
-                            '-i', '/tmp/{}/%07d.png'.format(input_dir),
+    return subprocess.call(utils['movie'] +
+                           ['-i', '/tmp/{}/%07d.png'.format(input_dir),
                             output_file])
 
 def main(outfile):
