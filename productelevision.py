@@ -24,7 +24,7 @@ def observe_user(output_dir):
     while not done:
         if subprocess.call(
             utils['screenshot'] +
-                ['/tmp/{}/{:07}.png'.format(output_dir, cur)]) != 0:
+                ['{}/{:07}.png'.format(output_dir, cur)]) != 0:
             return -1
         cur += 1
         try:
@@ -33,27 +33,24 @@ def observe_user(output_dir):
             done = True
     return 0
 
-def movie_from_images(input_dir, output_file):
+def movie_from_images(input_dir):
     return subprocess.call(utils['movie'] +
-                           ['-i', '/tmp/{}/%07d.png'.format(input_dir),
-                            output_file])
+                           ['-i', '{}/%07d.png'.format(input_dir),
+                            '{}/output.mpeg'.format(input_dir)])
 
-def main(outfile):
-    output_dir = 'pt-' + ''.join(random.choice(string.printable[:62])
-                                 for x in range(20))
-    if subprocess.call(['mkdir', '/tmp/{}'.format(output_dir)]) != 0:
+def main(output_dir):
+    if subprocess.call(['mkdir', output_dir]) != 0:
         return -1
     if observe_user(output_dir) != 0:
         return -1
-    if movie_from_images(output_dir, outfile) != 0:
+    if movie_from_images(output_dir) != 0:
         return -1
-    subprocess.call(['rm', '-r', '/tmp/{}'.format(output_dir)])
     return 0
 
 
 if __name__ == '__main__':
     import sys
     if len(sys.argv) < 2:
-        print('USAGE: {} output_filename'.format(sys.argv[0]))
+        print('USAGE: {} output_directory'.format(sys.argv[0]))
     elif main(sys.argv[1]) != 0:
         print('There was a problem, aborting...')
