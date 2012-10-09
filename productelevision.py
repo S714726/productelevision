@@ -9,11 +9,8 @@
 import subprocess, random, string, time
 
 utils = {
-    # Assumes utility that uses scrot syntax
-    'screenshot': ['/usr/bin/scrot', '-q', '100', '-m', '-z'],
-
-    # Assumes utility that uses ffmpeg/avconv movie compilation syntax
-    'movie': ['avconv', '-f', 'image2', '-qscale', '2', '-same_quant']
+    'screenshot': '/usr/bin/scrot -q 50 -m -z {output}',
+    'movie': 'avconv -f image2 -qscale 2 -same_quant -i {inputs} {output}'
 }
 
 def observe_user(output_dir):
@@ -23,8 +20,9 @@ def observe_user(output_dir):
     done = False
     while not done:
         if subprocess.call(
-            utils['screenshot'] +
-                ['{}/{:07}.png'.format(output_dir, cur)]) != 0:
+            utils['screenshot'].format(
+                output='{}/{:07}.png'.format(output_dir, cur)),
+                shell=True) != 0:
             return -1
         cur += 1
         try:
@@ -34,9 +32,9 @@ def observe_user(output_dir):
     return 0
 
 def movie_from_images(input_dir):
-    return subprocess.call(utils['movie'] +
-                           ['-i', '{}/%07d.png'.format(input_dir),
-                            '{}/output.mpeg'.format(input_dir)])
+    return subprocess.call(utils['movie'].format(
+            inputs='{}/%07d.png'.format(input_dir),
+            output='{}/output.mpeg'.format(input_dir)), shell=True)
 
 def main(output_dir):
     if subprocess.call(['mkdir', output_dir]) != 0:
