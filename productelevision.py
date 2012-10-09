@@ -19,36 +19,33 @@ def observe_user(output_dir):
     cur = 0
     done = False
     while not done:
-        if subprocess.call(
-            utils['screenshot'].format(
-                output='{}/{:07}.png'.format(output_dir, cur)),
-                shell=True) != 0:
-            return -1
+        err = subprocess.call(utils['screenshot'].format(
+                output='{}/{:07}.png'.format(output_dir, cur)), shell=True)
+        if err != 0:
+            raise EnvironmentError(err, 'screenshot call failed')
         cur += 1
         try:
             time.sleep(period)
         except KeyboardInterrupt:
             done = True
-    return 0
 
 def movie_from_images(input_dir):
-    return subprocess.call(utils['movie'].format(
+    err = subprocess.call(utils['movie'].format(
             inputs='{}/%07d.png'.format(input_dir),
             output='{}/output.mpeg'.format(input_dir)), shell=True)
+    if err != 0:
+        raise EnvironmentError(err, 'movie compile call failed')
+
 
 def main(output_dir):
-    if subprocess.call(['mkdir', output_dir]) != 0:
-        return -1
-    if observe_user(output_dir) != 0:
-        return -1
-    if movie_from_images(output_dir) != 0:
-        return -1
-    return 0
-
+    err = subprocess.call(['mkdir', output_dir])
+    if err != 0:
+        raise EnvironmentError(err, 'cannot make output directory')
+    observe_user(output_dir)
+    movie_from_images(output_dir)
 
 if __name__ == '__main__':
     import sys
     if len(sys.argv) < 2:
         print('USAGE: {} output_directory'.format(sys.argv[0]))
-    elif main(sys.argv[1]) != 0:
-        print('There was a problem, aborting...')
+    main(sys.argv[1])
