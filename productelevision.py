@@ -9,8 +9,8 @@
 import subprocess, random, string, time
 
 utils = {
-    'screenshot': '/usr/bin/scrot -q 50 -m -z {output}',
-    'movie': 'avconv -f image2 -qscale 2 -same_quant -i {inputs} {output}'
+    'screenshot': '/usr/bin/scrot -q 50 -m -z {path}/{num:07}.png',
+    'movie': 'avconv -f image2 -qscale 2 -same_quant -i {path}/%07d.png {path}/output.mpeg'
 }
 
 def observe_user(output_dir):
@@ -20,7 +20,7 @@ def observe_user(output_dir):
     done = False
     while not done:
         err = subprocess.call(utils['screenshot'].format(
-                output='{}/{:07}.png'.format(output_dir, cur)), shell=True)
+                path=output_dir, num=cur), shell=True)
         if err != 0:
             raise EnvironmentError(err, 'screenshot call failed')
         cur += 1
@@ -30,9 +30,7 @@ def observe_user(output_dir):
             done = True
 
 def movie_from_images(input_dir):
-    err = subprocess.call(utils['movie'].format(
-            inputs='{}/%07d.png'.format(input_dir),
-            output='{}/output.mpeg'.format(input_dir)), shell=True)
+    err = subprocess.call(utils['movie'].format(path=input_dir), shell=True)
     if err != 0:
         raise EnvironmentError(err, 'movie compile call failed')
 
