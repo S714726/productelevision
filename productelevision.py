@@ -2,9 +2,6 @@
 # Record a movie of your computer use, to see how productive your day was!
 #   Based on a script by jamak (gist 3068171); I'm just too lazy/inept to
 #   install zsh. Also something about an OS X screenshot utility. Yes.
-#
-# P.S. It takes a lot of granola to turn a 22 line shell script into a
-#   50+ line Python program
 
 import subprocess, random, string, time
 
@@ -13,34 +10,28 @@ utils = {
     'movie': 'avconv -f image2 -qscale 2 -same_quant -i {path}/%07d.png {path}/output.mpeg'
 }
 
+def outside_call(name, call):
+    err = subprocess.call(call, shell=True)
+    if err != 0: raise EnvironmentError(err, '{} call failed'.format(name))
+
 def observe_user(output_dir):
     period = 16 #seconds
 
     cur = 0
     done = False
     while not done:
-        err = subprocess.call(utils['screenshot'].format(
-                path=output_dir, num=cur), shell=True)
-        if err != 0:
-            raise EnvironmentError(err, 'screenshot call failed')
+        outside_call('screenshot',
+                     utils['screenshot'].format(path=output_dir, num=cur))
         cur += 1
         try:
             time.sleep(period)
         except KeyboardInterrupt:
             done = True
 
-def movie_from_images(input_dir):
-    err = subprocess.call(utils['movie'].format(path=input_dir), shell=True)
-    if err != 0:
-        raise EnvironmentError(err, 'movie compile call failed')
-
-
 def main(output_dir):
-    err = subprocess.call(['mkdir', output_dir])
-    if err != 0:
-        raise EnvironmentError(err, 'cannot make output directory')
+    outside_call('output directory creation', 'mkdir {}'.format(output_dir))
     observe_user(output_dir)
-    movie_from_images(output_dir)
+    outside_call('movie compile', utils['movie'].format(path=output_dir))
 
 if __name__ == '__main__':
     import sys
